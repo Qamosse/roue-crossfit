@@ -1,0 +1,223 @@
+/* ========== VARIABLES THEME ========== */
+:root {
+    --bg-color: #121212; /* Dark Mode */
+    --accent-red: #E10600; /* Rouge CrossFit */
+    --accent-yellow: #EBFF00; /* Jaune Fluo typique accessoires */
+    --text-main: #FFFFFF;
+    --text-muted: #A0A0A0;
+    --pointer-color: #E10600;
+}
+
+/* ========== RESET ET GLOBALS ========== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* Empêcher le scroll elastique sur iOS */
+    overscroll-behavior-y: none;
+}
+
+/* ========== HEADER ========== */
+.app-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    position: relative;
+    z-index: 10;
+}
+
+.app-header h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.app-header h1 span {
+    color: var(--accent-red);
+    font-style: italic;
+}
+
+.app-header h2 {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+/* ========== WRAPPER ET ROUE ========== */
+.wheel-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 2rem;
+}
+
+/* Le pointeur au sommet de la roue */
+.pointer {
+    width: 0; 
+    height: 0; 
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 40px solid var(--pointer-color);
+    position: absolute;
+    top: 0px; 
+    z-index: 5;
+    /* On l'ajuste pour qu'il "morde" un peu sur le canvas en dessous de lui */
+    transform: translateY(20px); 
+    filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));
+}
+
+.wheel-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0,0,0,0.8);
+    background-color: #222;
+    overflow: hidden;
+    /* Permet la bascule d'animation CSS de rotation par JS plus tard via "transform" */
+    transition: transform 5s cubic-bezier(0.15, 0.85, 0.25, 1);
+}
+
+#wheelCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    /* On tourne le canvas de -90deg pour que le dessin "commence" proprement face au curseur (haut), 
+    le contexte drawArc 0 commence par défaut à 3h (Droite). 
+    On gérera ça dans JS plutôt que via CSS pour éviter les conflits d'angles */
+}
+
+/* ========== BOUTON SPIN ========== */
+.spin-button {
+    margin-top: 3rem;
+    background-color: var(--accent-yellow);
+    color: #000;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1.8rem;
+    font-weight: 900;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(235, 255, 0, 0.2);
+    transition: transform 0.1s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    z-index: 10;
+}
+
+.spin-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 5px 10px rgba(235, 255, 0, 0.4);
+}
+
+.spin-button:disabled {
+    background-color: #555;
+    color: #888;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* ========== MODALE RESULTAT ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background-color: #222;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 90%;
+    width: 400px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border: 2px solid #333;
+    transform: translateY(0);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.hidden .modal-content {
+    transform: translateY(50px) scale(0.9);
+}
+
+.modal-content h3 {
+    font-size: 1.5rem;
+    color: var(--accent-yellow);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+/* Couleur spé pour les gages */
+.modal-content h3.gage-title {
+    color: var(--accent-red);
+}
+
+.modal-content p {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 2.5rem;
+}
+
+.close-btn {
+    background-color: transparent;
+    color: var(--text-main);
+    border: 2px solid var(--text-main);
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover, .close-btn:active {
+    background-color: var(--text-main);
+    color: #000;
+}
+
+/* ========== RESPONSIVENESS ========== */
+@media (max-width: 600px) {
+    .app-header h1 { font-size: 2rem; }
+    .wheel-container { max-width: 90vw; }
+}
+
+@media (max-height: 700px) {
+    .app-header { padding: 1rem 1rem; }
+    .wheel-container { max-width: 60vh; }
+    .spin-button { margin-top: 1rem; }
+}

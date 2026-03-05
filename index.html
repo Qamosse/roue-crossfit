@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Open 26.2 - Roue de la Fortune</title>
+    <!-- On utilise une police moderne sans-serif type fitness -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Librairie CDN pour les confettis -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+
+    <header class="app-header">
+        <h1>CROSSFIT OVERLAKE <span>26.2</span></h1>
+        <h2>Roue de la Fortune</h2>
+    </header>
+
+    <main class="wheel-wrapper">
+        <!-- Pointeur haut -->
+        <div class="pointer"></div>
+
+        <!-- Le conteneur qui va tourner -->
+        <div class="wheel-container" id="wheelContainer">
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <button id="spinButton" class="spin-button">SPIN</button>
+    </main>
+
+    <!-- UI Modale pour annoncer les résultats -->
+    <div id="resultModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modalType">Gain !</h3>
+            <p id="modalText">Un petit massage post-WOD !</p>
+            <button id="closeModalButton" class="close-btn">SUIVANT</button>
+        </div>
+    </div>
+
+    <script src="js/roue.js"></script>
+</body>
+
+</html>
