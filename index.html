@@ -4,20 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Open 26.2 - Roue de la Fortune</title>
-    <!-- On utilise une police moderne sans-serif type fitness -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap"
+    <title>CrossFit Overlake SportFest 2026 - Roue de la Fortune</title>
+    <!-- Police moderne sans-serif fitness -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,900;1,900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- Librairie CDN pour les confettis -->
+    <!-- CDN Confettis -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 
 <body>
 
     <header class="app-header">
-        <h1>CROSSFIT OVERLAKE <span>26.2</span></h1>
+        <div class="header-top">
+            <h1>CROSSFIT OVERLAKE <span>SportFest</span></h1>
+            <button id="openAdminBtn" class="admin-trigger-btn" title="Espace Admin">
+                ⚙️
+            </button>
+        </div>
         <h2>Roue de la Fortune</h2>
     </header>
 
@@ -31,14 +37,68 @@
         </div>
 
         <button id="spinButton" class="spin-button">SPIN</button>
+
+        <!-- Legend stocks sur la page principale -->
+        <section class="stock-legend">
+            <div class="stock-legend-title">
+                Stock restant
+            </div>
+            <div class="stock-grid" id="stockGrid">
+                <!-- Généré dynamiquement par JS -->
+            </div>
+        </section>
     </main>
 
     <!-- UI Modale pour annoncer les résultats -->
     <div id="resultModal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 id="modalType">Gain !</h3>
-            <p id="modalText">Un petit massage post-WOD !</p>
-            <button id="closeModalButton" class="close-btn">SUIVANT</button>
+            <p id="modalText" class="result-text">Un petit massage post-WOD !</p>
+            <div id="modalStockInfo" class="stock-remaining-info">Plus que 9 disponibles</div>
+            <div>
+                <button id="closeModalButton" class="close-btn">CONTINUER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Modale Code PIN Admin -->
+    <div id="adminPinModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Accès Admin 🔒</h3>
+            <p style="font-size: 0.95rem; color: var(--ice-blue); margin-bottom: 1rem;">Entrez le code PIN pour gérer
+                les stocks</p>
+            <input type="password" id="adminPinInput" class="pin-input" placeholder="••••" maxlength="6">
+            <div id="pinError" class="pin-error hidden">Code PIN incorrect !</div>
+            <div style="display: flex; gap: 0.8rem; justify-content: center; margin-top: 1rem;">
+                <button id="closePinModalBtn" class="close-btn"
+                    style="background: transparent; color: var(--ice-blue); border: 1px solid var(--border-glass);">Annuler</button>
+                <button id="submitPinBtn" class="close-btn">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Modale Gestion Admin -->
+    <div id="adminPanelModal" class="modal-overlay hidden">
+        <div class="modal-content admin-modal-content">
+            <div class="admin-header">
+                <h3>Espace Administration ⚙️</h3>
+                <button id="closeAdminPanelBtn" class="close-modal-x">&times;</button>
+            </div>
+
+            <div class="admin-body">
+                <p style="font-size: 0.85rem; color: var(--ice-blue); margin-bottom: 1rem;">
+                    Compteur de stock disponible pour chaque cadeau (10 par défaut). Modifiez les quantités ou
+                    réinitialisez tout.
+                </p>
+                <div class="admin-stock-list" id="adminStockList">
+                    <!-- Généré dynamiquement en JS -->
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <button id="resetAllStockBtn" class="btn-reset-all">Reset tous les stocks (10)</button>
+                <button id="saveAdminPanelBtn" class="btn-save-admin">Fermer</button>
+            </div>
         </div>
     </div>
 
