@@ -1,6 +1,6 @@
-/* ========== CONFIGURATION DES SEGMENTS (8 ITEMS) ========== */
+/* ========== CONFIGURATION DES SEGMENTS (7 ITEMS) ========== */
 const DEFAULT_STOCK = 10;
-const STORAGE_KEY = "ROUE_OVERLAKE_STOCKS_V2";
+const STORAGE_KEY = "ROUE_OVERLAKE_STOCKS_V3";
 const ADMIN_PIN = "1234";
 
 const segments = [
@@ -22,14 +22,6 @@ const segments = [
     },
     {
         id: 2,
-        text: "Bon Massage sportif 30 min par Warren",
-        canvasLines: ["Massage sportif 30m", "par Warren"],
-        type: "prix",
-        color: "#AFD9F3",
-        textColor: "#183F5F"
-    },
-    {
-        id: 3,
         text: "10 Burpees to target en moins de 30s = un bon pour 5 séances à 125.-",
         canvasLines: ["10 Burpees < 30s", "-> 5 séances 125.-"],
         type: "challenge",
@@ -37,15 +29,16 @@ const segments = [
         textColor: "#183F5F"
     },
     {
-        id: 4,
-        text: "50cal Row + une séance gratuite",
-        canvasLines: ["50cal Row", "+ 1 séance offerte"],
-        type: "challenge",
-        color: "#183F5F",
-        textColor: "#FFFFFF"
+        id: 3,
+        text: "30 sit ups",
+        canvasLines: ["30 Sit-ups", "Gage !"],
+        type: "gage",
+        color: "#AFD9F3",
+        textColor: "#183F5F",
+        infinite: true
     },
     {
-        id: 5,
+        id: 4,
         text: "Dead Hang max Time + stickers + une séance gratuite",
         canvasLines: ["Dead Hang max", "Stickers + 1 séance"],
         type: "challenge",
@@ -53,20 +46,21 @@ const segments = [
         textColor: "#FFFFFF"
     },
     {
-        id: 6,
-        text: "30 sit ups",
-        canvasLines: ["30 Sit-ups", "Gage !"],
-        type: "gage",
-        color: "#AFD9F3",
-        textColor: "#183F5F"
+        id: 5,
+        text: "50cal Row + une séance gratuite",
+        canvasLines: ["50cal Row", "+ 1 séance offerte"],
+        type: "challenge",
+        color: "#183F5F",
+        textColor: "#FFFFFF"
     },
     {
-        id: 7,
+        id: 6,
         text: "Next Time 😉",
         canvasLines: ["Next Time", "😉"],
         type: "lose",
         color: "#FFFFFF",
-        textColor: "#183F5F"
+        textColor: "#183F5F",
+        infinite: true
     }
 ];
 
@@ -137,8 +131,9 @@ function saveStocks() {
 }
 
 function checkAvailableStocks() {
+    const hasInfinite = segments.some(seg => seg.infinite);
     const totalRemaining = stocks.reduce((a, b) => a + b, 0);
-    if (totalRemaining === 0) {
+    if (!hasInfinite && totalRemaining === 0) {
         spinButton.disabled = true;
         spinButton.innerText = "ÉPUISÉ";
     } else if (!isSpinning) {
@@ -159,7 +154,7 @@ function drawWheel() {
     for (let i = 0; i < numSegments; i++) {
         const angleDebut = i * angleSegment;
         const angleFin = (i + 1) * angleSegment;
-        const isOutOfStock = stocks[i] <= 0;
+        const isOutOfStock = !segments[i].infinite && stocks[i] <= 0;
 
         // 1. Dessin du fond du segment
         ctx.beginPath();
@@ -231,7 +226,7 @@ function spinWheel() {
     // Déterminer la liste des segments éligibles (stock > 0)
     const availableIndices = [];
     stocks.forEach((count, idx) => {
-        if (count > 0) availableIndices.push(idx);
+        if (segments[idx].infinite || count > 0) availableIndices.push(idx);
     });
 
     if (availableIndices.length === 0) {
@@ -285,8 +280,8 @@ function spinWheel() {
 function handleSpinResult(winnerIndex) {
     const winner = segments[winnerIndex];
 
-    // Décrémenter le stock du lot gagné
-    if (stocks[winnerIndex] > 0) {
+    // Décrémenter le stock du lot gagné (sauf pour les lots illimités)
+    if (!winner.infinite && stocks[winnerIndex] > 0) {
         stocks[winnerIndex]--;
         saveStocks();
     }
@@ -308,7 +303,9 @@ function handleSpinResult(winnerIndex) {
     }
 
     modalText.innerText = winner.text;
-    modalStockInfo.innerText = `Il reste ${remaining} exemplaire${remaining > 1 ? 's' : ''} de ce lot`;
+    modalStockInfo.innerText = winner.infinite
+        ? "Lot illimité ∞"
+        : `Il reste ${remaining} exemplaire${remaining > 1 ? 's' : ''} de ce lot`;
 
     resultModal.classList.remove("hidden");
 }
@@ -334,11 +331,12 @@ function updateStockDisplay() {
         chip.className = "stock-item-chip";
 
         const count = stocks[idx];
-        const isEmpty = count <= 0;
+        const isEmpty = !seg.infinite && count <= 0;
+        const badgeText = seg.infinite ? "∞" : count;
 
         chip.innerHTML = `
             <span class="stock-item-name" title="${seg.text}">${seg.text}</span>
-            <span class="stock-badge ${isEmpty ? 'empty' : ''}">${count}</span>
+            <span class="stock-badge ${isEmpty ? 'empty' : ''}">${badgeText}</span>
         `;
         stockGrid.appendChild(chip);
     });
@@ -384,7 +382,14 @@ function renderAdminStockList() {
         const row = document.createElement("div");
         row.className = "admin-stock-item";
 
-        row.innerHTML = `
+        row.innerHTML = seg.infinite
+            ? `
+            <span class="admin-item-title">${seg.text}</span>
+            <div class="admin-controls">
+                <span class="admin-count-display">∞</span>
+            </div>
+        `
+            : `
             <span class="admin-item-title">${seg.text}</span>
             <div class="admin-controls">
                 <button class="btn-counter" onclick="changeStock(${idx}, -1)">-</button>
@@ -398,6 +403,7 @@ function renderAdminStockList() {
 
 // Fonction globale accessible pour les clics inline
 window.changeStock = function (index, delta) {
+    if (segments[index].infinite) return;
     stocks[index] = Math.max(0, stocks[index] + delta);
     saveStocks();
     renderAdminStockList();
