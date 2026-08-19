@@ -250,6 +250,7 @@ body::before {
     align-items: center;
     justify-content: space-between;
     gap: 0.4rem;
+    min-width: 0;
 }
 
 .stock-item-name {
@@ -258,6 +259,8 @@ body::before {
     text-overflow: ellipsis;
     color: var(--pure-white);
     font-weight: 600;
+    flex: 1;
+    min-width: 0;
 }
 
 .stock-badge {
@@ -269,6 +272,7 @@ body::before {
     border-radius: 10px;
     min-width: 26px;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .stock-badge.empty {
